@@ -7,10 +7,14 @@ using System.Threading;
 
 using Microsoft.Extensions.Configuration;
 
+using Serilog;
+using Serilog.Core;
+
 namespace Client.Random
 {
     class Program
     {
+        private static ILogger logger;
         private static readonly Command[] allCommands;
         private static string id;
 
@@ -22,7 +26,7 @@ namespace Client.Random
                 list.Add((Command)c);
             };
 
-            allCommands = list.ToArray();
+            allCommands = list.ToArray();            
         }
 
         static void Main(string[] args)
@@ -34,31 +38,35 @@ namespace Client.Random
             var configuration = configurationBuilder.Build();
             Func<string, string> settingsResolver = (name) => configuration[name];
 
+            var loggingLevelSwitch = new LoggingLevelSwitch();
+            Log.Logger = Infrastructure.Logging.ApplicationLogging.CreateLogger(settingsResolver, "docker-dotnetcore-client", loggingLevelSwitch, "./logs-buffer-client");
+            logger = Log.ForContext<Program>();
+
             var apiUrl = settingsResolver("ApiUrl");
             var maxDelay = TimeSpan.Parse(settingsResolver("MaxDelay"));
             var maxDelayMs = (int)maxDelay.TotalMilliseconds;
             var rnd = new System.Random();
 
-            Console.WriteLine($"REST API Random Test Client. API Url: {apiUrl}");
+            logger.Information($"REST API Random Test Client. API Url: {apiUrl}");
             var apiClient = new HttpClient();
 
             while (true)
             {
                 var c = GetRandomCommand();
-                Console.WriteLine($"Processing command {c}");
+                logger.Debug($"Processing command {c}");
 
                 var request = GetRequest(c, apiUrl);
                 try
                 {
-                    Console.WriteLine($"{request.Method} {request.RequestUri}");
+                    logger.Information($"{request.Method} {request.RequestUri}");
                     var response = apiClient.SendAsync(request).Result;
-                    Console.WriteLine($"{response.StatusCode}");
-                    
+                    logger.Debug($"{response.StatusCode}");
+
                     Thread.Sleep(rnd.Next(maxDelayMs));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to process command {c}: {ex.Message}");
+                    logger.Error(ex, $"Failed to process command {c}");
                 }
             }
         }

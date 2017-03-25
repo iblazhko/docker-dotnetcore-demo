@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace WebApi.Controllers
 {
@@ -8,11 +9,13 @@ namespace WebApi.Controllers
     public class ValuesController : Controller
     {
         private static readonly Dictionary<string, string> repository = new Dictionary<string, string>();
+        private readonly ILogger logger = Log.ForContext<ValuesController>();
 
         // GET api/values
         [HttpGet]
         public IEnumerable<IdValuePairType> Get()
         {
+            logger.Information("GET /api/values");
             foreach(var kvp in repository)
             {
                 yield return new IdValuePairType(kvp.Key, kvp.Value);
@@ -23,6 +26,7 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public IdValuePairType Get(string id)
         {
+            logger.Information($"GET /api/values/{id}");
             return repository.ContainsKey(id) ? new IdValuePairType(id, repository[id]) : null;
         }
 
@@ -30,6 +34,8 @@ namespace WebApi.Controllers
         [HttpPost]
         public void Post([FromBody]ValueType valueEnvelope)
         {
+            var v = valueEnvelope?.value;
+            logger.Information($"POST /api/values {v}");
             var id = Guid.NewGuid().ToString();
             repository.Add(id, valueEnvelope.value);
         }
@@ -38,6 +44,8 @@ namespace WebApi.Controllers
         [HttpPut("{id}")]
         public void Put(string id, [FromBody]ValueType valueEnvelope)
         {
+            var v = valueEnvelope?.value;
+            logger.Information($"PUT /api/values {v}");
             if (repository.ContainsKey(id))
                 repository[id] = valueEnvelope.value;
         }
@@ -46,6 +54,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(string id)
         {
+            logger.Information($"DELETE /api/values/{id}");
             if (repository.ContainsKey(id))
                 repository.Remove(id);
         }
