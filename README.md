@@ -12,7 +12,7 @@ it in one hour session.
 For the purpose of this demo, we'll build a system that consists of the
 following parts:
 
-- **REST API**. A very simple API that provides access to collection of
+- **API**. A very simple API that provides access to collection of
   `key-value` pairs.
 - **Command-line client**. Non-interactive client that continuously sends
   commands to the API.
@@ -135,3 +135,29 @@ Build the solution to make sure that everything was done correctly:
 
 You may add a build scripts in the `build` folder to automate the steps above,
 this repository uses [FAKE](http://fsharp.github.io/FAKE/ "FAKE") build script.
+
+See tag `Step_01` in this repository for reference implementation.
+
+## Step 2. Implementing WebAPI and Client
+
+### Step 2.1 WebAPI
+
+In this step we'll add simplest possible API implementation based on `Dictionary<string,string>`.
+The purpose of this step is just to see that API starts and responds to requests, so values will not persist after API restart; we'll add database in later steps.
+
+Modify `WebApi\Controllers\ValueController` to implement
+`GET`, `POST`, `PUT`, `DELETE` operations using static
+`Dictionary<string,string>` as values repository. Note that the dictionary has to be static because ASP.NET Core will create new controller instance per request.
+
+Run the API. Change directory to `src\WebApi` and run command
+
+    dotnet run
+
+You should see output
+
+    Now listening on: http://*:5000
+    Application started. Press Ctrl+C to shut down.
+
+Use `curl` or `Postman` client to test the API.
+
+See tag `Step_02_1` in this repository for reference implementation.
