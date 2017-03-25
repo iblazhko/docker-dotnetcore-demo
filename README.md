@@ -136,14 +136,14 @@ Build the solution to make sure that everything was done correctly:
 You may add a build scripts in the `build` folder to automate the steps above,
 this repository uses [FAKE](http://fsharp.github.io/FAKE/ "FAKE") build script.
 
-See tag `Step_01` in this repository for reference implementation.
+See tag [Step_01](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_01 "Step_01") in this repository for reference implementation.
 
 ## Step 2. Implementing WebAPI and Client
 
 ### Step 2.1 WebAPI
 
 In this step we'll add simplest possible API implementation based on `Dictionary<string,string>`.
-The purpose of this step is just to see that API starts and responds to requests, so values will not persist after API restart; we'll add database in later steps.
+The purpose of this step is just to see that API starts and responds to requests, so values will not persist after API restart; we'll add persistent storage in later steps.
 
 Modify `WebApi\Controllers\ValueController` to implement
 `GET`, `POST`, `PUT`, `DELETE` operations using static
@@ -160,4 +160,39 @@ You should see output
 
 Use `curl` or `Postman` client to test the API.
 
-See tag `Step_02_1` in this repository for reference implementation.
+See tag [Step_02_1](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_02_1 "Step_02_1") in this repository for reference implementation.
+
+### Step 2.2 Client
+
+In this step we'll add a client that will be continuously sending
+random requests to the API. The purpose of this client is to
+emulate some system activity.
+
+Modify `Client` project to send `GET`, `POST`, `PUT`, and `DELETE`
+commands periodically to the API.
+
+Run the API. Change directory to `src\WebApi` and run command
+
+    dotnet run
+
+You should see output
+
+    Now listening on: http://*:5000
+    Application started. Press Ctrl+C to shut down.
+
+Run the client. Leave the API running; in a new command prompt
+change directory to `src\Client` and run command
+
+    dotnet run
+
+You should see that the client is sending random commands, e.g.
+
+    REST API Random Test Client. API Url: http://localhost:5000/api
+    GET http://localhost:5000/api/values
+    POST http://localhost:5000/api/values
+    GET http://localhost:5000/api/values
+    GET http://localhost:5000/api/values/5baa8239-70b4-42d6-a360-1cc1c73ce9ac
+    GET http://localhost:5000/api/values/5baa8239-70b4-42d6-a360-1cc1c73ce9ac
+    DELETE http://localhost:5000/api/values/5baa8239-70b4-42d6-a360-1cc1c73ce9ac
+
+See tag [Step_02_2](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_02_2 "Step_02_2") in this repository for reference implementation.
