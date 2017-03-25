@@ -15,6 +15,7 @@ build/
 [Bb]in/
 [Oo]bj/
 _[Oo]ut/
+_[Pp]ublish/
 
 # Build scripts and reports
 .fake

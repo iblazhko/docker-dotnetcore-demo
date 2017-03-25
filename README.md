@@ -98,7 +98,7 @@ looks like this:
     src\
     README.md
 
-In command prompt, change directory to the `<solution dir>\src`, and
+In command prompt, change directory to the `<project directory>\src`, and
 run following commands:
 
     dotnet new sln --name DockerDotNetCore
@@ -230,3 +230,71 @@ as underlying implementation.
 In later steps we will add [ElasticSearch sink](https://github.com/serilog/serilog-sinks-elasticsearch "ElasticSearch sink") to send logs to centralized storage.
 
 See tag [Step_02_3](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_02_3 "Step_02_3") in this repository for reference implementation.
+
+## Step 3. Docker Containers
+
+### Step 3.1 WebAPI
+
+In this step we'll add Docker container for the API.
+
+Add `WebApi\Dockerfile` file to define content of the API container.
+
+    FROM microsoft/dotnet:1.1-runtime
+    WORKDIR /app
+    EXPOSE 5000
+    COPY _publish .
+    ENTRYPOINT ["dotnet", "WebApi.dll"]
+
+There are many ways to compose a Docker container, see
+[Dockerfile reference](https://docs.docker.com/engine/reference/builder/ "Dockerfile reference")
+for more information.
+
+In this project we'll be using `dotnet publish` output, i.e. compiled binaries,
+to compose API container. `Dockerfile` expects the output to be published into
+`_publish` directory, this is to simplify build process — the default location
+depends on the build configuration, e.g. `bin\Release\netcoreapp1.1`.
+
+In a command prompt, change directory to `<project directory>\src\WebApi`
+and run commands
+
+    dotnet restore
+    dotnet build
+    dotnet publish --output _publish
+
+    docker build --tag docker-dotnetcore/webapi:develop .
+
+You should see output from Docker similar to this:
+
+    Sending build context to Docker daemon 15.08 MB
+    Step 1/5 : FROM microsoft/dotnet:1.1-runtime
+    ---> 46bc96ad5288
+    Step 2/5 : WORKDIR /app
+    ---> Using cache
+    ---> 09605205a557
+    Step 3/5 : EXPOSE 5000
+    ---> Using cache
+    ---> 93bc4869240d
+    Step 4/5 : COPY _publish .
+    ---> 45d7a3e20515
+    Removing intermediate container 209fd09f89fc
+    Step 5/5 : ENTRYPOINT dotnet WebApi.dll
+    ---> Running in 661f47cb5a3d
+    ---> 3728e53b6d5f
+    Removing intermediate container 661f47cb5a3d
+    Successfully built 3728e53b6d5f
+
+(your ids will be different).
+
+
+    docker create --name dotnetcore_webapi_1 docker-dotnetcore/webapi:develop
+    docker start --interactive dotnetcore_webapi_1
+
+API should now be running in Docker. Press `Ctrl+C` when you need to stop it.
+You can also run it in non-interactive mode and inspect logs on demand:
+
+    docker start dotnetcore_webapi_1
+    docker logs dotnetcore_webapi_1
+    ...
+    docker stop dotnetcore_webapi_1
+
+See tag [Step_03_1](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_1 "Step_03_1") in this repository for reference implementation.

@@ -1,4 +1,4 @@
-#r @"../packages/FAKE.4.56.0/tools/FakeLib.dll"
+#r @"tools/packages/FAKE.4.56.0/tools/FakeLib.dll"
 
 open Fake
 open Fake.Testing
@@ -15,6 +15,9 @@ module Properties =
         let sourceDir = sprintf @"%s\src" solutionDir
         let solutionFile = sprintf @"%s\DockerDotNetCore.sln" sourceDir
         let unitTestsProject = sprintf @"%s\WebApi.Test.Unit\WebApi.Test.Unit.csproj" sourceDir
+
+        // Docker
+        let dockerImagesRepository = "docker-dotnetcore"
 
 
 module Targets =
@@ -51,6 +54,15 @@ module Targets =
             })
     )
 
+    Target "Publish" (fun _ ->
+        DotNetCli.Publish (fun p ->
+            { p with
+                Project = solutionFile
+                Configuration = buildConfiguration
+                Output = "_publish"
+            })
+    )
+
     Target "Default" (fun _ ->
         () |> DoNothing
     )
@@ -61,6 +73,7 @@ open Targets
     ==> "Restore"
     ==> "Build"
     ==> "Test"
+    ==> "Publish"
     ==> "Default"
 
 // Start
