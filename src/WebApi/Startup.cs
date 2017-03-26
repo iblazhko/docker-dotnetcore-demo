@@ -25,7 +25,13 @@ namespace WebApi
             var loggingLevelSwitch = new LoggingLevelSwitch();
             Log.Logger = Infrastructure.Logging.ApplicationLogging.CreateLogger(settingsResolver, "docker-dotnetcore-webapi", loggingLevelSwitch, "./logs-buffer-webapi");
 
-            Log.Information($"WebAPI started");
+            MongoDbConfiguration.ServerAddress = settingsResolver("MongoDb.ServerAddress");
+            MongoDbConfiguration.ServerPort = int.Parse(settingsResolver("MongoDb.ServerPort"));
+            MongoDbConfiguration.DatabaseName = settingsResolver("MongoDb.DatabaseName");
+            MongoDbConfiguration.UserName = settingsResolver("MongoDb.UserName");
+            MongoDbConfiguration.UserPassword = settingsResolver("MongoDb.UserPassword");
+
+            Log.Information($"WebAPI MongoDb: Server {MongoDbConfiguration.ServerAddress}:{MongoDbConfiguration.ServerPort}/{MongoDbConfiguration.DatabaseName}");
         }
 
         public IConfigurationRoot Configuration { get; }

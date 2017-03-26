@@ -346,19 +346,19 @@ Add file `<project directory>\src\_docker\docker-compose.yml`:
 
     services:
         webapi:
-        image: docker-dotnetcore/webapi:develop
-        build:
-            context: ../WebApi
-            dockerfile: Dockerfile
-        ports:
-            - "5000:5000"
+            image: docker-dotnetcore/webapi:develop
+            build:
+                context: ../WebApi
+                dockerfile: Dockerfile
+            ports:
+                - "5000:5000"
         client:
             image: docker-dotnetcore/client:develop
-        build:
-            context: ../Client
-        dockerfile: Dockerfile
-            depends_on:
-            - webapi
+            build:
+                context: ../Client
+            dockerfile: Dockerfile
+                depends_on:
+                - webapi
 
 This file defines two services, `webapi` and `client`.
 Both of them will be built from `Dockerfile`, so we need to
@@ -421,3 +421,78 @@ You should see both `webapi` and `client` containers running:
     webapi_1  | 2017-03-26 09:19:46.089 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] DELETE /api/values/7166a52d-cd0c-4ab0-9422-6c548e954091
 
 See tag [Step_03_3](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_3 "Step_03_3") in this repository for reference implementation.
+
+
+### Step 4 Supporting Infrastructure
+
+### Step 4.1 MongoDb
+
+In this step, we will add another Docker container to our system,
+to run MongoDb server, and will modify API implementation to store
+values in the database.
+
+Docker Compose allows to define services based on images published
+in Docker repositories. Let's add `mongo` service based on
+[`mongo:latest`](https://hub.docker.com/_/mongo/ "MongoDb Docker Image") image.
+
+Modify `<project directory>\src\_docker\docker-compose.yml`:
+
+    version: "3"
+
+    services:
+      webapi:
+        image: docker-dotnetcore/webapi:develop
+        build:
+          context: ../WebApi
+          dockerfile: Dockerfile
+        ports:
+          - "5000:5000"
+        depends_on:
+          - mongodb
+      client:
+        image: docker-dotnetcore/client:develop
+        build:
+          context: ../Client
+          dockerfile: Dockerfile
+        depends_on:
+          - webapi
+      mongodb:
+        image: mongo:latest
+        ports:
+          - "27017:27017"    
+
+
+Note that MongoDb .NET drive is compatible with `netstandard1.5` or higher.
+Check `TargetFramework` in project files to make sure that they
+meet this requirement:
+
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+
+Modify API implementation to use database instead of in-memory dictionary.
+
+    cd <project directory>\src
+
+    dotnet add .\WebApi\WebApi.csproj package Microsoft.Extensions.Configuration
+    dotnet add .\WebApi\WebApi.csproj package Microsoft.Extensions.Configuration.CommandLine
+    dotnet add .\WebApi\WebApi.csproj package Microsoft.Extensions.Configuration.Json
+    dotnet add .\WebApi\WebApi.csproj package MongoDB.Driver
+
+In `<project directory>\src\WebApi\appsettings.json` add settings for MongoDb:
+
+    {
+      "MongoDb.ServerAddress": "mongodb",
+      "MongoDb.ServerPort": "27017",
+      "MongoDb.DatabaseName": "docker-dotnetcore",
+      "MongoDb.UserName": "",
+      "MongoDb.UserPassword": ""
+    }
+
+Note that we are using `mongodb` as a server address. This needs to match MongoDb service
+name in `docker-compose.yml`.
+
+Modify `<project directory>\src\WebApi\Startup.cs`
+to read MongoDb settings, and 
+`<project directory>\src\WebApi\Controllers\ValuesController.cs`
+to use MongoDb database.
+
+See tag [Step_04_1](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_04_1 "Step_04_1") in this repository for reference implementation.
