@@ -39,7 +39,7 @@ namespace Client.Random
             Func<string, string> settingsResolver = (name) => configuration[name];
 
             var loggingLevelSwitch = new LoggingLevelSwitch();
-            Log.Logger = Infrastructure.Logging.ApplicationLogging.CreateLogger(settingsResolver, "docker-dotnetcore-client", loggingLevelSwitch, "./logs-buffer-client");
+            Log.Logger = Infrastructure.Logging.ApplicationLogging.CreateLogger(settingsResolver, "docker-dotnetcore-client", loggingLevelSwitch, "./logs");
             logger = Log.ForContext<Program>();
 
             var apiUrl = settingsResolver("ApiUrl");

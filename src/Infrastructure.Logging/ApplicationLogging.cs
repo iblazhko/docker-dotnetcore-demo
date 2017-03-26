@@ -23,7 +23,8 @@ namespace Infrastructure.Logging
             var loggerConfiguration = ConfigurationFactory.CreateConfiguration(
                 settingsResolver: settingsResolver,
                 serviceName: serviceName,
-                loggingLevelSwitch: loggingLevelSwitch);
+                loggingLevelSwitch: loggingLevelSwitch,
+                bufferFileFolderLocation: bufferFileLocation);
 
             if (destructuringPolicies.Length > 0)
             {

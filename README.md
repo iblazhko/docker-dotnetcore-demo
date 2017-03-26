@@ -459,10 +459,10 @@ Modify `<project directory>\src\_docker\docker-compose.yml`:
       mongodb:
         image: mongo:latest
         ports:
-          - "27017:27017"    
+          - "27017:27017"
 
 
-Note that MongoDb .NET drive is compatible with `netstandard1.5` or higher.
+Note that MongoDb .NET driver is compatible with `netstandard1.5` or higher.
 Check `TargetFramework` in project files to make sure that they
 meet this requirement:
 
@@ -496,3 +496,75 @@ to read MongoDb settings, and
 to use MongoDb database.
 
 See tag [Step_04_1](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_04_1 "Step_04_1") in this repository for reference implementation.
+
+### Step 4.2 ElasticSearch
+
+In this step, we will add another Docker container to our system,
+to run ElasticSearch server, and will modify logging implementation
+to store logs from both API and Client in centralized ElasticSearch
+database.
+
+Modify `<project directory>\src\_docker\docker-compose.yml`:
+
+    version: "3"
+
+    services:
+      webapi:
+        image: docker-dotnetcore/webapi:develop
+        build:
+          context: ../WebApi
+          dockerfile: Dockerfile
+        ports:
+          - "5000:5000"
+        depends_on:
+          - mongodb
+          - elasticsearch
+      client:
+        image: docker-dotnetcore/client:develop
+        build:
+          context: ../Client
+          dockerfile: Dockerfile
+        depends_on:
+          - webapi
+          - elasticsearch
+      mongodb:
+        image: mongo:latest
+        ports:
+          - "27017:27017"
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+        ports:
+          - "9200:9200"
+
+Add configuration settings to WebApi and Client `appsettings.json`
+files:
+
+    "ElasticSearch.Url": "http://elasticsearch:9200",
+    "ElasticSearch.IndexFormat": "docker-dotnetcoreapp",
+    "LoggingLevel": "Information"
+
+Add ElasticSearch sink package reference:
+
+    cd <project directory>\src
+    dotnet add .\Infrastructure.Logging\Infrastructure.Logging.csproj package Serilog.Sinks.ElasticSearch
+
+Modify logging configuration to write to the ElasticSearch sink:
+
+    .WriteTo.Elasticsearch(
+        new ElasticsearchSinkOptions(new Uri(esUrl))
+        {
+            AutoRegisterTemplate = true,
+            IndexFormat = esIndexFormat,
+            BufferBaseFilename = bufferFileFolderLocation
+        })
+
+Note that we use `BufferBaseFilename` option in ElasticSearch sink.
+This is to buffer logs locally in case ElasticSearch server is not available.
+The logs will be sent to server one the connection is established.
+
+To create a location for logs buffer, add following line in `Dockerfile`
+in both API and Client:
+
+    RUN mkdir ./logs
+
+See tag [Step_04_2](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_04_2 "Step_04_2") in this repository for reference implementation.
