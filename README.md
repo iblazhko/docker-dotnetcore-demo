@@ -327,3 +327,97 @@ and run commands
     docker stop dotnetcore_client_1
 
 See tag [Step_03_2](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_2 "Step_03_2") in this repository for reference implementation.
+
+### Step 3.3 Docker Compose
+
+In this step, we will create a system to build and run all our Docker
+containers at once.
+
+We will be using
+[Docker Compose](https://docs.docker.com/compose/ "Docker Compose").
+Compose is a tool for defining and running multi-container Docker
+applications. With Compose, you use a YAML-based configuration file
+to configure your application’s services. Then, using a single command,
+you create and start all the services from your configuration.
+
+Add file `<project directory>\src\_docker\docker-compose.yml`:
+
+    version: "3"
+
+    services:
+        webapi:
+        image: docker-dotnetcore/webapi:develop
+        build:
+            context: ../WebApi
+            dockerfile: Dockerfile
+        ports:
+            - "5000:5000"
+        client:
+            image: docker-dotnetcore/client:develop
+        build:
+            context: ../Client
+        dockerfile: Dockerfile
+            depends_on:
+            - webapi
+
+This file defines two services, `webapi` and `client`.
+Both of them will be built from `Dockerfile`, so we need to
+specify project location (`context` parameter) and
+the Dockerfile name (`dockerfile` parameter).
+
+Docker images name in this demo follow pattern
+`<product>/<component>:<tag>`, and we use tag `develop` to indicate
+that this in a development version.
+
+Our `Client` service depends on `API`, we need to specify
+this dependency in `docker-compose.yml` using `depends_on` parameter,
+so that `webapi` service starts first.
+
+By default Compose sets up a single network for your app.
+Each container for a service joins this default network
+and is both reachable by other containers on that network,
+and discoverable by them at a hostname identical to the container name.
+
+This means that the `client` service can access `webapi` service
+using `webapi` hostname. We need to adjust `client` application
+settings. In `<project directory>\src\Client\appsettings.json`,
+modify `ApiUrl` setting:
+
+    "ApiUrl": "http://webapi:5000/api"
+
+Build and run the application:
+
+    cd <project directory>\src
+    dotnet restore DockerDotNetCore.sln
+    dotnet build DockerDotNetCore.sln
+    dotnet publish DockerDotNetCore.sln --output _publish
+
+    cd <project directory>\src\_docker
+    docker-compose build
+    docker-compose up
+
+You should see both `webapi` and `client` containers running:
+
+    Creating docker_webapi_1
+    Creating docker_client_1
+    Attaching to docker_webapi_1, docker_client_1
+    webapi_1  | 2017-03-26 09:19:24.630 [docker-dotnetcore-webapi ] [ Information] [] WebAPI started
+    client_1  | 2017-03-26 09:19:26.099 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] REST API Random Test Client. API Url: http://webapi:5000/api
+    webapi_1  | Hosting environment: Development
+    webapi_1  | Content root path: /app
+    webapi_1  | Now listening on: http://*:5000
+    webapi_1  | Application started. Press Ctrl+C to shut down.
+    client_1  | 2017-03-26 09:19:26.166 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] GET http://webapi:5000/api/values
+    webapi_1  | 2017-03-26 09:19:26.589 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] GET /api/values
+    client_1  | 2017-03-26 09:19:29.483 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] GET http://webapi:5000/api/values
+    webapi_1  | 2017-03-26 09:19:29.494 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] GET /api/values
+    client_1  | 2017-03-26 09:19:34.189 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] GET http://webapi:5000/api/values
+    webapi_1  | 2017-03-26 09:19:34.191 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] GET /api/values
+    client_1  | 2017-03-26 09:19:39.192 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] POST http://webapi:5000/api/values
+    webapi_1  | 2017-03-26 09:19:39.318 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] POST /api/values 03/26/2017 09:19:39
+    client_1  | 2017-03-26 09:19:42.563 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] GET http://webapi:5000/api/values/7166a52d-cd0c-4ab0-9422-6c548e954091
+    webapi_1  | 2017-03-26 09:19:42.579 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] GET /api/values/7166a52d-cd0c-4ab0-9422-6c548e954091
+    client_1  | 2017-03-26 09:19:46.086 [docker-dotnetcore-client ] [ Information] ["Client.Random.Program"] DELETE http://webapi:5000/api/values/7166a52d-cd0c-4ab0-9422-6c548e954091
+    webapi_1  | 2017-03-26 09:19:46.089 [docker-dotnetcore-webapi ] [ Information] ["WebApi.Controllers.ValuesController"] DELETE /api/values/7166a52d-cd0c-4ab0-9422-6c548e954091
+
+See tag [Step_03_3](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_3 "Step_03_3") in this repository for reference implementation.

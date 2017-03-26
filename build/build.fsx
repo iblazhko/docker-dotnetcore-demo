@@ -18,6 +18,7 @@ module Properties =
 
         // Docker
         let dockerImagesRepository = "docker-dotnetcore"
+        let dockerComposeDir = sprintf @"%s\_docker" sourceDir
 
 
 module Targets =
@@ -63,6 +64,14 @@ module Targets =
             })
     )
 
+    Target "Compose" (fun _ ->
+        ExecProcess (fun info ->
+            info.FileName <- ("docker-compose.exe")
+            info.Arguments <- ("build")
+            info.WorkingDirectory <- dockerComposeDir
+        ) (System.TimeSpan.FromMinutes 10.) |> ignore
+    )
+
     Target "Default" (fun _ ->
         () |> DoNothing
     )
@@ -74,6 +83,7 @@ open Targets
     ==> "Build"
     ==> "Test"
     ==> "Publish"
+    ==> "Compose"
     ==> "Default"
 
 // Start

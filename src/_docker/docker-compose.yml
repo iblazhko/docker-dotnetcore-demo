@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  webapi:
+    image: docker-dotnetcore/webapi:develop
+    build:
+      context: ../WebApi
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  client:
+    image: docker-dotnetcore/client:develop
+    build:
+      context: ../Client
+      dockerfile: Dockerfile
+    depends_on:
+      - webapi
