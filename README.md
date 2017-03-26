@@ -298,3 +298,32 @@ You can also run it in non-interactive mode and inspect logs on demand:
     docker stop dotnetcore_webapi_1
 
 See tag [Step_03_1](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_1 "Step_03_1") in this repository for reference implementation.
+
+### Step 3.2 Client
+
+In this step we'll add Docker container for the client.
+
+Add `Client\Dockerfile` file to define content of the API container.
+
+    FROM microsoft/dotnet:1.1-runtime
+    WORKDIR /app
+    EXPOSE 5000
+    COPY _publish .
+    COPY appsettings.json .
+    ENTRYPOINT ["dotnet", "Client.dll"]
+
+In a command prompt, change directory to `<project directory>\src\Client`
+and run commands
+
+    dotnet restore
+    dotnet build
+    dotnet publish --output _publish
+
+    docker build --tag docker-dotnetcore/client:develop .
+    docker create --name dotnetcore_client_1 docker-dotnetcore/client:develop
+    docker start dotnetcore_client_1
+    docker logs dotnetcore_client_1
+    ...
+    docker stop dotnetcore_client_1
+
+See tag [Step_03_2](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_03_2 "Step_03_2") in this repository for reference implementation.
