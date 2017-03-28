@@ -22,6 +22,12 @@ following parts:
 All the components will be running in
 [Docker](https://www.docker.com/ "Docker").
 
+## Pre-requisites
+
+1. Install .NET Core from <https://www.microsoft.com/net/core>
+2. Install Docker Community Edition from <https://www.docker.com/>
+3. (Optional) Install VisualStudio Code from <https://code.visualstudio.com/>
+
 ## Technology Stack
 
 ### .NET Core
