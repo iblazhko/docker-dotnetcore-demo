@@ -140,7 +140,7 @@ Build the solution to make sure that everything was done correctly:
     dotnet publish .\DockerDotNetCore.sln
 
 You may add a build scripts in the `build` folder to automate the steps above,
-this repository uses [FAKE](http://fsharp.github.io/FAKE/ "FAKE") build script.
+this project uses [FAKE](http://fsharp.github.io/FAKE/ "FAKE") build script.
 
 See tag [Step_01](https://github.com/iblazhko/docker-dotnetcore-demo/releases/tag/Step_01 "Step_01") in this repository for reference implementation.
 
@@ -222,7 +222,7 @@ To ensure that system activity is logged consistently, add logging implementatio
 to `Infrastracture.Logging`; modify `WebApi` and `Client` projects to use that
 implementation and log activity to console.
 
-This repository uses [Serilog](https://serilog.net/ "Serilog") and its
+This project uses [Serilog](https://serilog.net/ "Serilog") and its
 [ColoredConsole sink](https://github.com/serilog/serilog-sinks-coloredconsole "Colored Console")
 as underlying implementation.
 
