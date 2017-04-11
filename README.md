@@ -88,8 +88,12 @@ Containers only bundle dependencies required to run
 the software, unlike a Virtual Machine that isolates
 full operating system.
 
-## Step 1. Solution Skeleton
+## Step 0. Prerequisites
 
+Install [.NET Core SDK](https://www.microsoft.com/net/download/core ".NET Core")
+and [Docker](https://www.docker.com "Docker").
+
+## Step 1. Solution Skeleton
 
 Create `src` and `build` directories, so that the top-level structure
 looks like this:
