@@ -1,0 +1,9 @@
+Microsoft.AspNetCore
+Microsoft.AspNetCore.Mvc
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.CommandLine
+Microsoft.Extensions.Configuration.Json
+Microsoft.Extensions.Logging.Debug
+MongoDB.Driver
+Serilog
+Serilog.Sinks.ColoredConsole

@@ -1,0 +1,3 @@
+Serilog
+Serilog.Sinks.ColoredConsole
+Serilog.Sinks.ElasticSearch

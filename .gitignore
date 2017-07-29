@@ -11,16 +11,13 @@
 [Dd]ebug/
 [Rr]elease/
 x64/
-build/
 [Bb]in/
 [Oo]bj/
 _[Oo]ut/
 _[Pp]ublish/
 
 # Build scripts and reports
-.fake
-.paket
-!/build/
+.fake/
 /build/reports/*.log
 /build/reports/*.html
 /build/reports/*.xml
@@ -30,9 +27,8 @@ packages/
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
 
-#VisualStudio
+# VisualStudio
 .vs/
-.vscode/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -78,6 +74,9 @@ ipch/
 
 # Guidance Automation Toolkit
 *.gpState
+
+# JetBrains
+.idea/
 
 # ReSharper is a .NET coding add-in
 _ReSharper*/

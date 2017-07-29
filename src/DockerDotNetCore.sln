@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{575A3348-865D-4B79-9B36-F2A1B01F77E4}"
+	ProjectSection(SolutionItems) = preProject
+		..\paket.dependencies = ..\paket.dependencies
+	EndProjectSection
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Logging", "Infrastructure.Logging\Infrastructure.Logging.csproj", "{8AEEFFF4-BA42-4FED-BF5B-1359F70B11D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{8C2E2273-CAB7-41E3-9DBF-77B0FA04B3A5}"

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 root = true
 
 [*]
@@ -16,3 +17,12 @@ indent_size = 4
 [*.{json,yml}]
 indent_style = space
 indent_size = 2
+=======
+# http://EditorConfig.org
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+>>>>>>> Stashed changes

@@ -1,0 +1,20 @@
+source https://api.nuget.org/v3/index.json
+
+nuget NuGet.CommandLine
+nuget Microsoft.AspNetCore >= 1.1.1
+nuget Microsoft.AspNetCore.Mvc >= 1.1.2
+nuget Microsoft.Extensions.Configuration >= 1.1.1
+nuget Microsoft.Extensions.Configuration.CommandLine >= 1.1.1
+nuget Microsoft.Extensions.Configuration.Json >= 1.1.1
+nuget Microsoft.Extensions.Logging.Debug >= 1.1.1
+nuget Microsoft.NET.Test.Sdk >= 15.0.0
+
+nuget MongoDB.Driver ~> 2.4.3
+nuget Serilog ~> 2.4.0
+nuget Serilog.Sinks.ColoredConsole ~> 2.0.0
+nuget Serilog.Sinks.ElasticSearch ~> 5.0.0
+nuget xunit ~> 2.2.0
+nuget xunit.runner.console ~> 2.2.0
+nuget xunit.runner.visualstudio ~> 2.2.0
+
+clitool FAKE ~> 4.2

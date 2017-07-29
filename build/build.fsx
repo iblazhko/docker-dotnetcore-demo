@@ -1,29 +1,42 @@
-#r @"tools/packages/FAKE.4.56.0/tools/FakeLib.dll"
+#r @"../packages/FAKE/tools/FakeLib.dll"
 
 open Fake
 open Fake.Testing
 open System
 open System.Diagnostics
+open System.IO
 
 module Properties =
     let buildConfiguration = getBuildParamOrDefault "Configuration" "Release"
     let buildPlatform = getBuildParamOrDefault "Platform" "Any CPU"
 
     module Internal =
-        let buildDir = __SOURCE_DIRECTORY__
-        let solutionDir = sprintf @"%s\.." buildDir
-        let sourceDir = sprintf @"%s\src" solutionDir
-        let solutionFile = sprintf @"%s\DockerDotNetCore.sln" sourceDir
-        let unitTestsProject = sprintf @"%s\WebApi.Test.Unit\WebApi.Test.Unit.csproj" sourceDir
+        let repositoryDir = ((new DirectoryInfo(__SOURCE_DIRECTORY__)).Parent).FullName
+        let sourceDir = Path.Combine(repositoryDir, "src")
+        let solutionFile = Path.Combine(sourceDir, "DockerDotNetCore.sln")
+        let unitTestsProject = Path.Combine(sourceDir, "WebApi.Test.Unit", "WebApi.Test.Unit.csproj")
 
         // Docker
         let dockerImagesRepository = "docker-dotnetcore"
-        let dockerComposeDir = sprintf @"%s\_docker" sourceDir
-
+        let dockerComposeDir = Path.Combine(sourceDir, "_docker")
 
 module Targets =
     open Properties
     open Properties.Internal
+
+    Target "Purge" (fun _ ->
+        let purgeScript = sprintf "$startPath = '%s'; Get-ChildItem -Path $startPath -Filter 'bin' -Directory -Recurse | Foreach { $_.Delete($true) }; Get-ChildItem -Path $startPath -Filter 'obj' -Directory -Recurse | Foreach { $_.Delete($true) }" repositoryDir
+        let powershellWrapper = sprintf """/c powershell -ExecutionPolicy Unrestricted -Command "%s" """ purgeScript
+
+        let p = new Process()
+        p.StartInfo.FileName <- "cmd.exe"
+        p.StartInfo.Arguments <- powershellWrapper
+        p.StartInfo.RedirectStandardOutput <- true
+        p.StartInfo.UseShellExecute <- false
+        p.Start() |> ignore
+
+        printfn "%s" (p.StandardOutput.ReadToEnd())
+    )
 
     Target "Clean" (fun _ ->
         DotNetCli.RunCommand (fun p ->
@@ -52,6 +65,8 @@ module Targets =
             { p with
                 Project = unitTestsProject
                 Configuration = buildConfiguration
+                AdditionalArgs = ["--logger"; "trx"]
+                TimeOut = (System.TimeSpan.FromMinutes 5.)
             })
     )
 
@@ -61,6 +76,7 @@ module Targets =
                 Project = solutionFile
                 Configuration = buildConfiguration
                 Output = "_publish"
+                TimeOut = (System.TimeSpan.FromMinutes 5.)
             })
     )
 
@@ -72,19 +88,20 @@ module Targets =
         ) (System.TimeSpan.FromMinutes 10.) |> ignore
     )
 
-    Target "Default" (fun _ ->
-        () |> DoNothing
-    )
+    Target "FullBuild" DoNothing
+    Target "Default" DoNothing
 
 // Dependencies
 open Targets
+
 "Clean"
     ==> "Restore"
     ==> "Build"
-    ==> "Test"
-    ==> "Publish"
-    ==> "Compose"
-    ==> "Default"
+
+"Build" ==> "Test"
+"Test" ==> "Publish"
+"Compose" ==> "FullBuild"
+"FullBuild" ==> "Default"
 
 // Start
 RunTargetOrDefault "Default"

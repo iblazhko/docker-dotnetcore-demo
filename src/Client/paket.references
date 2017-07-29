@@ -1,0 +1,5 @@
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.CommandLine
+Microsoft.Extensions.Configuration.Json
+Serilog
+Serilog.Sinks.ColoredConsole
